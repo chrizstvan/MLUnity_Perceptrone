@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 [System.Serializable]
 public class TrainingSet
@@ -26,7 +27,7 @@ public class Perceptron : MonoBehaviour
     {
         //React
         double result = CalcOutput(input_1, input_2);
-        Debug.Log(result);
+        Debug.Log("The result from Sendinput: " + result);
 
         if (result == 0) // duck for cover
         {
@@ -147,8 +148,31 @@ public class Perceptron : MonoBehaviour
         for (int t = 0; t < trainingSets.Count; t++)
         {
             UpdateWeight(t);
-            Debug.Log("W1: " + (weight[0]) + " W2: " + weight[1] + " B: " + bias);
+            Debug.Log("W1: " + (weight[0]) + " W2: " + weight[1] + " B: " + bias + "Total Error: " + totalError);
         }
+    }
+
+    void LoadWeights()
+    {
+        string path = Application.dataPath + "/weights.txt";
+        if (File.Exists(path))
+        {
+            var sr = File.OpenText(path);
+            string line = sr.ReadLine();
+            string[] w = line.Split(',');
+            weight[0] = System.Convert.ToDouble(w[0]);
+            weight[1] = System.Convert.ToDouble(w[1]);
+            bias = System.Convert.ToDouble(w[2]);
+            Debug.Log("loading");
+        }
+    }
+
+    void SaveWeights()
+    {
+        string path = Application.dataPath + "/weights.txt";
+        var sr = File.CreateText(path);
+        sr.WriteLine(weight[0] + "," + weight[1] + "," + bias);
+        sr.Close();
     }
 
     // Use this for initialization
@@ -166,6 +190,18 @@ public class Perceptron : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            SaveWeights();
+        }
+        else if (Input.GetKeyDown(KeyCode.V))
+        {
+            LoadWeights();
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            InitialWeight();
+            trainingSets.Clear();
+        }
     }
 }
